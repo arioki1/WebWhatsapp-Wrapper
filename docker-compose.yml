@@ -1,29 +1,46 @@
-version: "3"
-
+version: '3.0'
 services:
-  firefox:
-    image: selenium/standalone-firefox-debug:3.14.0-curium
-    ports:
-      - "4444:4444"
-      - "5900:5900"
-    volumes:
-      - "/dev/shm:/dev/shm"
-    networks:
-      - selenium
-  whatsapp:
-     build: .
-     environment:
-       - SELENIUM=http://firefox:4444/wd/hub
-     volumes:
-       - ".:/app"
-     command: python sample/remote.py
-     networks:
-       - selenium
-     depends_on:
-       - firefox
-
+    firefox:
+        image: 'selenium/standalone-firefox-debug:3.14.0-curium'
+        ports:
+            - '4444:4444'
+            - '5900:5900'
+        volumes:
+            - '/dev/shm:/dev/shm'
+        networks:
+            - selenium
+    whatsapp:
+        build: .
+        environment:
+            - "SELENIUM=http://firefox:4444/wd/hub"
+        volumes:
+            - '.:/app'
+        command: 'python sample/remote.py'
+        networks:
+            - selenium
+        depends_on:
+            - firefox
+    rabbitmq:
+        image: 'rabbitmq:3-management'
+        build: .
+        hostname: rabbitmq
+        volumes:
+            - './mnesia1:/var/lib/rabbitmq'
+        ports:
+            - '5672:5672'
+            - '15672:15672'
+        environment:
+            - RABBITMQ_ERLANG_COOKIE=123123
+            - RABBITMQ_DEFAULT_USER=qiscus
+            - RABBITMQ_DEFAULT_PASS=qiscus
+            - RABBITMQ_DEFAULT_VHOST=rabbitmq1
+#            - RABBITMQ_NODE_IP_ADDRESS:0.0.0.0
+        networks:
+            - selenium    
+        depends_on:
+            - firefox
 volumes:
-  devshm:
-
+    devshm: null
 networks:
-  selenium:
+    selenium: null
+
